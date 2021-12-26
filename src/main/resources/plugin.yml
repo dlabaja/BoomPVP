@@ -1,0 +1,11 @@
+name: Boompvp
+version: '${project.version}'
+main: me.dlabaja.boompvp.Main
+api-version: 1.18
+authors: [ dlabaja ]
+description: Plugin s BoomPVP minihrou
+
+commands:
+  boomkit:
+    description: boomkit
+    usage: /boomkit
