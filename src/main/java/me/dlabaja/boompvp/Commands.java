@@ -1,7 +1,6 @@
 package me.dlabaja.boompvp;
 
-import me.dlabaja.boompvp.MongoRoot.BoomPVPPrvky;
-import me.dlabaja.boompvp.MongoRoot.BoomPVPPrvky;
+import me.dlabaja.boompvp.utils.BoomPVPPrvky;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;

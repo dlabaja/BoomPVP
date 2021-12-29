@@ -1,14 +1,9 @@
 package me.dlabaja.boompvp;
 
-import me.dlabaja.boompvp.MongoRoot.BoomPVPPrvky;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import me.dlabaja.boompvp.utils.BoomPVPPrvky;
+import me.dlabaja.boompvp.utils.Utils;
 import org.bukkit.WorldBorder;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
-
-import java.util.*;
 
 public final class Main extends JavaPlugin {
 
@@ -18,9 +13,9 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        System.out.println("boompvp started");
-
-        _boomPVPPrvky.listLokace = new ArrayList<>(List.of(
+        Utils.log.info("BoomPVP ON");
+        new Setup().Setup();
+        /*_boomPVPPrvky.listLokace = new ArrayList<>(List.of(
                 new Location(Bukkit.getWorld("world"), 11, 52, -0.5),
                 new Location(Bukkit.getWorld("world"), -2, 54, 502.5),
                 new Location(Bukkit.getWorld("world"), 24.5, 52, -492),
@@ -69,7 +64,7 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        System.out.println("uwu vypnuto");
+        Utils.log.info("BoomPVP OFF");
     }
 
     public void GetFirstMap(List<Location> listLokace) {
@@ -96,7 +91,7 @@ public final class Main extends JavaPlugin {
             player.sendTitle(_boomPVPPrvky.mapToName.get(BoomPVPPrvky.currentLocation), "", 5, 40, 5);
         }
         border.setCenter(BoomPVPPrvky.currentLocation);
-        border.setSize(100);
+        border.setSize(100);*/
     }
 }
 

@@ -1,9 +1,9 @@
 package me.dlabaja.boompvp;
 
 import com.mongodb.client.model.FindOneAndUpdateOptions;
-import me.dlabaja.boompvp.MongoRoot.BoomPVPPrvky;
-import me.dlabaja.boompvp.MongoRoot.MongoBoomPVP;
-import me.dlabaja.boompvp.MongoRoot.MongoData;
+import me.dlabaja.boompvp.utils.BoomPVPPrvky;
+import me.dlabaja.boompvp.utils.MongoBoomPVP;
+import me.dlabaja.boompvp.utils.MongoData;
 import org.bson.Document;
 import org.bukkit.*;
 import org.bukkit.entity.*;

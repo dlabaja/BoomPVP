@@ -1,4 +1,4 @@
-package me.dlabaja.boompvp.MongoRoot;
+package me.dlabaja.boompvp.utils;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
@@ -20,7 +20,7 @@ public class MongoData {
 
     //vytvoření připojení
     private static final MongoClientSettings clientSettings = MongoClientSettings.builder()
-            .applyConnectionString(new ConnectionString(new Secrets().connectionString))
+            .applyConnectionString(new ConnectionString("sus"))
             .codecRegistry(codecRegistry)
             .build();
 

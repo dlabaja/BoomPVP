@@ -1,4 +1,4 @@
-package me.dlabaja.boompvp.MongoRoot;
+package me.dlabaja.boompvp.utils;
 
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;

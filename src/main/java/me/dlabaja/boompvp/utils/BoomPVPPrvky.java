@@ -1,4 +1,4 @@
-package me.dlabaja.boompvp.MongoRoot;
+package me.dlabaja.boompvp.utils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
