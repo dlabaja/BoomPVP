@@ -1,11 +1,7 @@
 package me.dlabaja.boompvp;
 
-import com.mongodb.client.model.FindOneAndUpdateOptions;
 import me.dlabaja.boompvp.utils.BoomPVPPrvky;
-import me.dlabaja.boompvp.utils.MongoBoomPVP;
-import me.dlabaja.boompvp.utils.MongoData;
 import me.dlabaja.boompvp.utils.Sql;
-import org.bson.Document;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -22,9 +18,6 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import java.sql.SQLException;
 import java.util.*;
-
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Updates.setOnInsert;
 
 public class BoomPVP implements Listener {
 
@@ -91,10 +84,7 @@ public class BoomPVP implements Listener {
     @EventHandler
     public void OnPlayerQuit(PlayerQuitEvent event) {
         event.setQuitMessage(ChatColor.WHITE + "" + ChatColor.BOLD + "[" + ChatColor.RED + "" + ChatColor.BOLD + "-" + ChatColor.WHITE + "" + ChatColor.BOLD + "] " + event.getPlayer().getName());
-        MongoData.collDoc.replaceOne(eq("name", event.getPlayer().getName()), new Document("name", event.getPlayer().getName())
-                .append("kills", _boomPVPPrvky.killy.get(event.getPlayer()))
-                .append("deaths", _boomPVPPrvky.smrti.get(event.getPlayer()))
-                .append("killstreak", 1));
+        Sql.SaveData(event.getPlayer(), _boomPVPPrvky);
         _boomPVPPrvky.killy.remove(event.getPlayer());
         _boomPVPPrvky.smrti.remove(event.getPlayer());
         _boomPVPPrvky.killstreak.remove(event.getPlayer());
@@ -105,21 +95,17 @@ public class BoomPVP implements Listener {
     @EventHandler
     public void OnPlayerJoin(PlayerJoinEvent event) throws SQLException {
         event.setJoinMessage(ChatColor.WHITE + "" + ChatColor.BOLD + "[" + ChatColor.GREEN + "" + ChatColor.BOLD + "+" + ChatColor.WHITE + "" + ChatColor.BOLD + "] " + event.getPlayer().getName());
-        Document doc = new Document("name", event.getPlayer().getName())
-                .append("kills", 0)
-                .append("deaths", 0)
-                .append("killstreak", 0);
         if (!Sql.PlayerExists(event.getPlayer().getName()))
             Sql.Execute(Sql.AddPlayer(event.getPlayer().getName()));
-        //load dat a uložení do hashmap
-        /*MongoData.collDoc.findOneAndUpdate(eq("name", event.getPlayer().getName()), setOnInsert(doc), new FindOneAndUpdateOptions().upsert(true));
 
-        MongoBoomPVP findDoc = MongoData.coll.find(eq("name", event.getPlayer().getName())).first();
-        _boomPVPPrvky.killy.put(event.getPlayer(), Objects.requireNonNull(findDoc).getKills());
-        _boomPVPPrvky.smrti.put(event.getPlayer(), findDoc.getDeaths());
-        _boomPVPPrvky.killstreak.put(event.getPlayer(), 0);
+        System.out.println(Arrays.toString(Sql.GetASetData(event.getPlayer().getName())));
+
+        var data = Sql.GetASetData(event.getPlayer().getName());
+        _boomPVPPrvky.killy.put(event.getPlayer(), (Integer) data[1]);
+        _boomPVPPrvky.smrti.put(event.getPlayer(), (Integer) data[2]);
+        _boomPVPPrvky.killstreak.put(event.getPlayer(), (Integer) data[3]);
         _boomPVPPrvky.invStats.put(event.getPlayer(), false);
-        BoomPVPPrvky.classa.put(event.getPlayer().getName(), "1");*/
+        BoomPVPPrvky.classa.put(event.getPlayer().getName(), "1");
 
         event.getPlayer().teleport(BoomPVPPrvky.currentLocation);
 

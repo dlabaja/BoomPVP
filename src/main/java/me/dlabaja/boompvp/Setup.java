@@ -1,13 +1,9 @@
 package me.dlabaja.boompvp;
 
-import jdk.jshell.execution.Util;
 import me.dlabaja.boompvp.utils.Sql;
 import me.dlabaja.boompvp.utils.Utils;
 
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class Setup {
 
