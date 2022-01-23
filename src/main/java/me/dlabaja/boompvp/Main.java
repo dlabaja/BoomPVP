@@ -2,8 +2,16 @@ package me.dlabaja.boompvp;
 
 import me.dlabaja.boompvp.utils.BoomPVPPrvky;
 import me.dlabaja.boompvp.utils.Utils;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.WorldBorder;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
+
+import java.util.*;
+
+import static me.dlabaja.boompvp.utils.Utils.log;
 
 public final class Main extends JavaPlugin {
 
@@ -13,9 +21,10 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        Utils.log.info("BoomPVP ON");
+        log = getLogger();
+        log.info("BoomPVP ON");
         new Setup().Setup();
-        /*_boomPVPPrvky.listLokace = new ArrayList<>(List.of(
+        _boomPVPPrvky.listLokace = new ArrayList<>(List.of(
                 new Location(Bukkit.getWorld("world"), 11, 52, -0.5),
                 new Location(Bukkit.getWorld("world"), -2, 54, 502.5),
                 new Location(Bukkit.getWorld("world"), 24.5, 52, -492),
@@ -91,7 +100,7 @@ public final class Main extends JavaPlugin {
             player.sendTitle(_boomPVPPrvky.mapToName.get(BoomPVPPrvky.currentLocation), "", 5, 40, 5);
         }
         border.setCenter(BoomPVPPrvky.currentLocation);
-        border.setSize(100);*/
+        border.setSize(100);
     }
 }
 

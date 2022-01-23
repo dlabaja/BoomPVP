@@ -1,5 +1,7 @@
 package me.dlabaja.boompvp;
 
+import jdk.jshell.execution.Util;
+import me.dlabaja.boompvp.utils.Sql;
 import me.dlabaja.boompvp.utils.Utils;
 
 import java.io.File;
@@ -10,29 +12,30 @@ import java.sql.SQLException;
 public class Setup {
 
     void Setup() {
-        if(!DbExists()){
-            CreateConfigDir();
-            InitDB();
+        if (!DbExists()){
+            CreateDB();
         }
+        Utils.log.info("Setup completed");
     }
 
-    void InitDB() {
-        try (Connection conn = DriverManager.getConnection(Utils.pathToDB)) {
-            if (conn != null) {
-                Utils.conn = conn;
-                Utils.log.info("Database connected");
-            }
+    void CreateDB() {
+        Utils.log.info("First time using? Creating a database...");
+        CreateConfigDir();
+        Sql.Execute("CREATE TABLE players (" +
+                "name varchar(255)," +
+                "kills int," +
+                "deaths int," +
+                "killstreak int" +
+                ")");
+        Utils.log.info("Database created!");
 
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
     }
 
-    void CreateConfigDir(){
+    void CreateConfigDir() {
         new File("plugins/boompvp").mkdirs();
     }
 
-    boolean DbExists(){
-        return new File("plugins/boompvp/db").exists();
+    boolean DbExists() {
+        return new File(Utils.pathToDB).exists();
     }
 }

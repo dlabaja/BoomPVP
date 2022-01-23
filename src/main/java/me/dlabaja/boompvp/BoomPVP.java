@@ -4,6 +4,7 @@ import com.mongodb.client.model.FindOneAndUpdateOptions;
 import me.dlabaja.boompvp.utils.BoomPVPPrvky;
 import me.dlabaja.boompvp.utils.MongoBoomPVP;
 import me.dlabaja.boompvp.utils.MongoData;
+import me.dlabaja.boompvp.utils.Sql;
 import org.bson.Document;
 import org.bukkit.*;
 import org.bukkit.entity.*;
@@ -19,6 +20,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.sql.SQLException;
 import java.util.*;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -48,7 +50,7 @@ public class BoomPVP implements Listener {
             ExitInvisibleMode(player);
         }
 
-        //odstraňí perly a další věci z inv
+        //odstraní perly a další věci z inv
         player.setHealth(20);
         if (player.getInventory().getItemInOffHand().getType().equals(Material.ENDER_PEARL) || player.getInventory().getItemInOffHand().getType().equals(Material.ARROW)) {
             player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
@@ -101,23 +103,24 @@ public class BoomPVP implements Listener {
     }
 
     @EventHandler
-    public void OnPlayerJoin(PlayerJoinEvent event) {
+    public void OnPlayerJoin(PlayerJoinEvent event) throws SQLException {
         event.setJoinMessage(ChatColor.WHITE + "" + ChatColor.BOLD + "[" + ChatColor.GREEN + "" + ChatColor.BOLD + "+" + ChatColor.WHITE + "" + ChatColor.BOLD + "] " + event.getPlayer().getName());
         Document doc = new Document("name", event.getPlayer().getName())
                 .append("kills", 0)
                 .append("deaths", 0)
                 .append("killstreak", 0);
-        MongoData.collDoc.findOneAndUpdate(eq("name", event.getPlayer().getName()), setOnInsert(doc), new FindOneAndUpdateOptions().upsert(true));
+        if (!Sql.PlayerExists(event.getPlayer().getName()))
+            Sql.Execute(Sql.AddPlayer(event.getPlayer().getName()));
+        //load dat a uložení do hashmap
+        /*MongoData.collDoc.findOneAndUpdate(eq("name", event.getPlayer().getName()), setOnInsert(doc), new FindOneAndUpdateOptions().upsert(true));
 
         MongoBoomPVP findDoc = MongoData.coll.find(eq("name", event.getPlayer().getName())).first();
         _boomPVPPrvky.killy.put(event.getPlayer(), Objects.requireNonNull(findDoc).getKills());
         _boomPVPPrvky.smrti.put(event.getPlayer(), findDoc.getDeaths());
         _boomPVPPrvky.killstreak.put(event.getPlayer(), 0);
         _boomPVPPrvky.invStats.put(event.getPlayer(), false);
-        BoomPVPPrvky.classa.put(event.getPlayer().getName(), "1");
+        BoomPVPPrvky.classa.put(event.getPlayer().getName(), "1");*/
 
-        //throws the error, world is null
-        System.out.println(BoomPVPPrvky.currentLocation);
         event.getPlayer().teleport(BoomPVPPrvky.currentLocation);
 
 
@@ -138,6 +141,8 @@ public class BoomPVP implements Listener {
         if (event.getPlayer().getLocation().getY() <= -10)
             event.getPlayer().setHealth(0);
         if (event.getPlayer().getLocation().getY() >= 57) {
+            if(event.getPlayer().getHealth() <= 0.25)
+                event.getPlayer().setHealth(0);
             event.getPlayer().setHealth(event.getPlayer().getHealth() - 0.25);
             event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_PLAYER_HURT, 1f, 1f);
         }
