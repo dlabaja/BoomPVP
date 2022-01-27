@@ -11,12 +11,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 public class BoomPVPPrvky {
+
     public static Location currentLocation;
+    public static HashMap<String, Location> maps = new HashMap<>();
     public long[] dayTimeList = new long[]{6000, 18000};
-    public HashMap<Location, String> mapToName = new HashMap<>();
-    public List<Location> listLokace = new ArrayList<>();
     public List<Player> cantPVP = new ArrayList<>();
 
     public HashMap<Player, ItemStack[]> inv = new HashMap<>();

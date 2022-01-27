@@ -10,7 +10,6 @@ public class Sql {
     public static void Execute(String sql) {
         try(Connection conn = Connect()) {
             assert conn != null;
-            System.out.println(sql);
             conn.createStatement().executeUpdate(sql);
         } catch (SQLException e) {
             Utils.log.severe(e.getMessage());

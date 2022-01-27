@@ -1,6 +1,7 @@
 package me.dlabaja.boompvp;
 
 import me.dlabaja.boompvp.utils.BoomPVPPrvky;
+import me.dlabaja.boompvp.utils.Config;
 import me.dlabaja.boompvp.utils.Sql;
 import org.bukkit.*;
 import org.bukkit.entity.*;
@@ -94,11 +95,10 @@ public class BoomPVP implements Listener {
 
     @EventHandler
     public void OnPlayerJoin(PlayerJoinEvent event) throws SQLException {
+        event.getPlayer().setGameMode(GameMode.ADVENTURE);
         event.setJoinMessage(ChatColor.WHITE + "" + ChatColor.BOLD + "[" + ChatColor.GREEN + "" + ChatColor.BOLD + "+" + ChatColor.WHITE + "" + ChatColor.BOLD + "] " + event.getPlayer().getName());
         if (!Sql.PlayerExists(event.getPlayer().getName()))
             Sql.Execute(Sql.AddPlayer(event.getPlayer().getName()));
-
-        System.out.println(Arrays.toString(Sql.GetASetData(event.getPlayer().getName())));
 
         var data = Sql.GetASetData(event.getPlayer().getName());
         _boomPVPPrvky.killy.put(event.getPlayer(), (Integer) data[1]);
@@ -108,7 +108,6 @@ public class BoomPVP implements Listener {
         BoomPVPPrvky.classa.put(event.getPlayer().getName(), "1");
 
         event.getPlayer().teleport(BoomPVPPrvky.currentLocation);
-
 
         //nový scoreboard
         NewScoreboard(event.getPlayer());
@@ -124,16 +123,16 @@ public class BoomPVP implements Listener {
     @EventHandler
     public void OnPlayerMoveVoid(PlayerMoveEvent event) {
         //pokud spadne pod y = -10, zabije se
-        if (event.getPlayer().getLocation().getY() <= -10)
+        if (event.getPlayer().getLocation().getY() <= Config.min_height)
             event.getPlayer().setHealth(0);
-        if (event.getPlayer().getLocation().getY() >= 57) {
-            if(event.getPlayer().getHealth() <= 0.25)
+        if (event.getPlayer().getLocation().getY() >= Config.max_height) {
+            if (event.getPlayer().getHealth() <= Config.height_damage)
                 event.getPlayer().setHealth(0);
-            event.getPlayer().setHealth(event.getPlayer().getHealth() - 0.25);
+            event.getPlayer().setHealth(event.getPlayer().getHealth() - Config.height_damage);
             event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_PLAYER_HURT, 1f, 1f);
         }
 
-        if (Objects.requireNonNull(event.getTo()).getBlock().getType().equals(Material.LAVA) && event.getPlayer().getGameMode().equals(GameMode.SURVIVAL))
+        if (Objects.requireNonNull(event.getTo()).getBlock().getType().equals(Material.LAVA) && !event.getPlayer().getGameMode().equals(GameMode.CREATIVE))
             event.getPlayer().setHealth(0);
 
     }
@@ -141,24 +140,18 @@ public class BoomPVP implements Listener {
     //pokud vystřelí na spawnu, šíp se vrátí
     @EventHandler
     public void OnPlayerLaunchProjectile(ProjectileLaunchEvent event) {
-        if (event.getEntity().getLocation().getY() >= 51)
+        if (event.getEntity().getLocation().getY() >= Config.spawn_height)
             event.setCancelled(true);
-    }
-
-    @EventHandler
-    public void OnPearlDamage(PlayerTeleportEvent event) {
-
     }
 
     //Aktivuje se při smrti hráče a dá útočníkovi věci + vygeneruje podle posledního damage death message
     @EventHandler
     public void OnPlayerKill(PlayerDeathEvent event) {
-
         event.setDeathMessage("");
         _boomPVPPrvky.killstreak.replace(event.getEntity().getPlayer(), 0);
         String deathmsg;
         if (event.getEntity().getKiller() == event.getEntity().getPlayer() || event.getEntity().getKiller() == null) {
-            deathmsg = "☠ " + ChatColor.GOLD + "" + event.getEntity().getPlayer().getName() + ChatColor.WHITE + " umřel";
+            deathmsg = "☠ " + ChatColor.GOLD + "" + event.getEntity().getPlayer().getName() + ChatColor.WHITE + " died";
             NewScoreboard(event.getEntity().getPlayer());
         } else {
             if (Objects.requireNonNull(event.getEntity().getLastDamageCause()).getDamage() <= 1)
@@ -173,7 +166,7 @@ public class BoomPVP implements Listener {
             _boomPVPPrvky.killy.replace(event.getEntity().getKiller(), _boomPVPPrvky.killy.get(event.getEntity().getKiller()) + 1);
             _boomPVPPrvky.killstreak.replace(event.getEntity().getKiller(), _boomPVPPrvky.killstreak.get(event.getEntity().getKiller()) + 1);
             if (_boomPVPPrvky.killstreak.get(event.getEntity().getKiller()) % 5 == 0)
-                deathmsg = deathmsg + ChatColor.WHITE + "\n" + "\uD83D\uDD25 " + ChatColor.RED + "" + event.getEntity().getKiller().getName() + ChatColor.WHITE + " má killstreak " + ChatColor.RED + _boomPVPPrvky.killstreak.get(event.getEntity().getKiller()) + ChatColor.WHITE + " zabití!";
+                deathmsg = deathmsg + ChatColor.WHITE + "\n" + "\uD83D\uDD25 " + ChatColor.RED + "" + event.getEntity().getKiller().getName() + ChatColor.WHITE + " has killstreak " + ChatColor.RED + _boomPVPPrvky.killstreak.get(event.getEntity().getKiller()) + ChatColor.WHITE + "!";
             NewScoreboard(event.getEntity().getKiller());
         }
         event.setDeathMessage(deathmsg);
@@ -185,12 +178,8 @@ public class BoomPVP implements Listener {
     //pokud v inventáři klikne na perlu, perla se vrátí zpět. Takhle při smrti nemůže hráč duplikovat itemy
     @EventHandler
     public void OnInventoryClick(InventoryClickEvent event) {
-        try {
-            if (Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.ENDER_PEARL) || event.getCurrentItem().getType().equals(Material.ARROW) || Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.FIREWORK_ROCKET) || Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.EGG)) {
-                event.setCancelled(true);
-            }
-        } catch (Exception e) {
-            System.out.println(e);
+        if (Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.ENDER_PEARL) || event.getCurrentItem().getType().equals(Material.ARROW) || Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.FIREWORK_ROCKET) || Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.EGG)) {
+            event.setCancelled(true);
         }
     }
 
@@ -205,6 +194,7 @@ public class BoomPVP implements Listener {
             if (!(event.getHitEntity() instanceof Player))
                 return;
 
+            assert attacker != null;
             event.getHitEntity().teleport(attacker.getLocation());
             attacker.teleport(trefeny);
             Player pl = (Player) event.getHitEntity();
@@ -252,6 +242,12 @@ public class BoomPVP implements Listener {
         if (event.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.MUSIC_DISC_13)) {
             ExitInvisibleMode(event.getPlayer());
         }
+    }
+
+    @EventHandler
+    public void OnDamage(EntityDamageEvent event) {
+        if ((event.getCause() == EntityDamageEvent.DamageCause.FALL && Config.fall_damage) || event.getCause() != EntityDamageEvent.DamageCause.FLY_INTO_WALL)
+            event.setCancelled(true);
     }
 
     @EventHandler
