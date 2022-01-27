@@ -1,0 +1,20 @@
+{
+  "maps": [
+    {
+    "name":"Map1",
+    "spawnpoint": {
+      "world_name": "world",
+      "x": 50,
+      "y": 50,
+      "z": 50
+    }},
+    {
+      "name":"Map2",
+      "spawnpoint": {
+      "world_name": "world",
+      "x": 154,
+      "y": 55,
+      "z": 59
+    }}
+  ]
+}

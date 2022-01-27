@@ -246,8 +246,10 @@ public class BoomPVP implements Listener {
 
     @EventHandler
     public void OnDamage(EntityDamageEvent event) {
-        if ((event.getCause() == EntityDamageEvent.DamageCause.FALL && Config.fall_damage) || event.getCause() != EntityDamageEvent.DamageCause.FLY_INTO_WALL)
+        if ((event.getCause() == EntityDamageEvent.DamageCause.FALL && !Config.fall_damage) || event.getCause() == EntityDamageEvent.DamageCause.FLY_INTO_WALL)
             event.setCancelled(true);
+        if (event.getCause() == EntityDamageEvent.DamageCause.FIRE_TICK || event.getCause() == EntityDamageEvent.DamageCause.FIRE || event.getCause() == EntityDamageEvent.DamageCause.LAVA)
+            ((Player) event.getEntity()).setHealth(0);
     }
 
     @EventHandler

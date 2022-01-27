@@ -16,7 +16,7 @@ import java.util.Properties;
 public class BoomPVPPrvky {
 
     public static Location currentLocation;
-    public static HashMap<String, Location> maps = new HashMap<>();
+    public static HashMap<Location, String> maps = new HashMap<>();
     public long[] dayTimeList = new long[]{6000, 18000};
     public List<Player> cantPVP = new ArrayList<>();
 
@@ -26,6 +26,8 @@ public class BoomPVPPrvky {
     public HashMap<Player, Integer> smrti = new HashMap<>();
     public HashMap<Player, Integer> killstreak = new HashMap<>();
     public static HashMap<String, String> classa = new HashMap<>();
+    public ArrayList<Location> listLokace = new ArrayList<>();
+    public HashMap<Object, Object> mapToName = new HashMap<>();
 
     //vrátí nezničitelný a enchantovaný item
     public ItemStack MakeItem(Material item, int count, Enchantment ench, int lvl) {

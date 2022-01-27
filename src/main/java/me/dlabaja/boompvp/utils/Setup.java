@@ -89,7 +89,7 @@ public class Setup {
                 for (var single_map: JsonParser.parseString(String.valueOf(entry.getValue())).getAsJsonArray()) { //all map objects
                     var obj = single_map.getAsJsonObject();
                     var spwn = single_map.getAsJsonObject().get("spawnpoint").getAsJsonObject();
-                    BoomPVPPrvky.maps.put(String.valueOf(obj.get("name")), new Location(Bukkit.getWorld(String.valueOf(spwn.get("world_name").getAsString())), spwn.get("x").getAsInt(), spwn.get("y").getAsInt(), spwn.get("z").getAsInt()));
+                    BoomPVPPrvky.maps.put(new Location(Bukkit.getWorld(String.valueOf(spwn.get("world_name").getAsString())), spwn.get("x").getAsInt(), spwn.get("y").getAsInt(), spwn.get("z").getAsInt()), String.valueOf(obj.get("name")));
                 }
             }
 
