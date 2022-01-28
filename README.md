@@ -3,7 +3,7 @@
 Use various classes to fight and get to the top!
 
 ***How to use:*** \
-Download JAR file from [here](https://duckduckgo.com)  
+Download JAR file from [here](https://github.com/dlabaja/BoomPVP/releases/)  
 Put it into your plugin folder  
 After running the server, a boompvp folder would appear in your plugin dir  
 
