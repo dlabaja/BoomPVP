@@ -29,8 +29,8 @@ public class Sql {
         return String.format("INSERT INTO players(name, kills, deaths, killstreak) VALUES('%s', 0, 0, 0)", name);
     }
 
-    public static void SaveData(Player player, BoomPVPPrvky _boomPVPPrvky){
-        Sql.Execute(String.format("UPDATE players SET kills = %o, deaths = %o, killstreak = %o WHERE name = '%s';", _boomPVPPrvky.killy.get(player), _boomPVPPrvky.smrti.get(player), _boomPVPPrvky.killstreak.get(player), player.getName()));
+    public static void SaveData(Player player, BoomPVP _boomPVP){
+        Sql.Execute(String.format("UPDATE players SET kills = %o, deaths = %o, killstreak = %o WHERE name = '%s';", _boomPVP.killy.get(player), _boomPVP.smrti.get(player), _boomPVP.killstreak.get(player), player.getName()));
     }
 
     public static Boolean PlayerExists(String name) throws SQLException {
@@ -45,9 +45,9 @@ public class Sql {
         return false;
     }
 
-    public static Object[] GetASetData(String playerName) {
+    public static Object[] GetASetData(Player player) {
         try(Connection conn = Connect()) {
-            var sql = String.format("SELECT * FROM players WHERE name='%s'", playerName);
+            var sql = String.format("SELECT * FROM players WHERE name='%s'", player.getName());
             assert conn != null;
             var rs = conn.createStatement().executeQuery(sql);
             while (rs.next()) {

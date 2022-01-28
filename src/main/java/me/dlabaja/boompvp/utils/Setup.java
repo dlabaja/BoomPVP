@@ -18,15 +18,19 @@ import java.util.Properties;
 public class Setup {
 
     public void Setup() {
-        CreateConfig();
-        InitConfig();
-        ReadJson();
-        if (!DbExists()) {
+        if (!DirExists())
+            CreateDir();
+        if (!ConfigExists()) {
+            CreateConfig();
             Utils.log.info("First time using? Setting things up...");
-            CreateConfigDir();
-            CreateDB();
-            CreateJson();
         }
+        InitConfig();
+        if (!DbExists()) {
+            CreateDB();
+        }
+        if (!JsonExists())
+            CreateJson();
+        ReadJson();
         Utils.log.info("Setup completed");
     }
 
@@ -44,29 +48,21 @@ public class Setup {
 
     void CreateConfig() {
         try {
-
-            var properties = new Properties();
-            properties.load(new FileInputStream(Utils.pathToConfig));
-            var currproperties = new Properties();
-            currproperties.load(Objects.requireNonNull(this.getClass().getClassLoader().getResource("config.properties")).openStream());
-            if (properties.get("version") != currproperties.get("version")) {
-                try {
-                    FileUtils.copyURLToFile(Objects.requireNonNull(this.getClass().getClassLoader().getResource("config.properties")), new File("plugins/boompvp/config.properties"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (IOException ignored) {
-            try {
-                FileUtils.copyURLToFile(Objects.requireNonNull(this.getClass().getClassLoader().getResource("config.properties")), new File("plugins/boompvp/config.properties"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            FileUtils.copyURLToFile(Objects.requireNonNull(this.getClass().getClassLoader().getResource("config.properties")), new File("plugins/boompvp/config.properties"));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     void InitConfig() {
         try {
+            var properties = new Properties();
+            properties.load(new FileInputStream(Utils.pathToConfig));
+            var currproperties = new Properties();
+            currproperties.load(Objects.requireNonNull(this.getClass().getClassLoader().getResource("config.properties")).openStream());
+            if (properties.get("version") != currproperties.get("version")) {
+                FileUtils.copyURLToFile(Objects.requireNonNull(this.getClass().getClassLoader().getResource("config.properties")), new File("plugins/boompvp/config.properties"));
+            }
             Config.properties.load(new FileInputStream(Utils.pathToConfig));
             Config.Setup();
         } catch (IOException e) {
@@ -74,7 +70,7 @@ public class Setup {
         }
     }
 
-    void CreateJson(){
+    void CreateJson() {
         try {
             FileUtils.copyURLToFile(Objects.requireNonNull(this.getClass().getClassLoader().getResource("spawn.json")), new File("plugins/boompvp/spawn.json"));
         } catch (IOException e) {
@@ -85,11 +81,11 @@ public class Setup {
     public static void ReadJson() {
         try {
             JsonObject maps = JsonParser.parseString(Files.readString(Path.of(Utils.pathToJson), StandardCharsets.US_ASCII)).getAsJsonObject();
-            for (var entry: maps.entrySet()) { //the whole json ("maps")
-                for (var single_map: JsonParser.parseString(String.valueOf(entry.getValue())).getAsJsonArray()) { //all map objects
+            for (var entry : maps.entrySet()) { //the whole json ("maps")
+                for (var single_map : JsonParser.parseString(String.valueOf(entry.getValue())).getAsJsonArray()) { //all map objects
                     var obj = single_map.getAsJsonObject();
                     var spwn = single_map.getAsJsonObject().get("spawnpoint").getAsJsonObject();
-                    BoomPVPPrvky.maps.put(new Location(Bukkit.getWorld(String.valueOf(spwn.get("world_name").getAsString())), spwn.get("x").getAsInt(), spwn.get("y").getAsInt(), spwn.get("z").getAsInt()), String.valueOf(obj.get("name")));
+                    BoomPVP.maps.put(new Location(Bukkit.getWorld(String.valueOf(spwn.get("world_name").getAsString())), spwn.get("x").getAsInt(), spwn.get("y").getAsInt(), spwn.get("z").getAsInt()), String.valueOf(obj.get("name")));
                 }
             }
 
@@ -98,11 +94,23 @@ public class Setup {
         }
     }
 
-    void CreateConfigDir() {
-        new File("plugins/boompvp").mkdirs();
+    void CreateDir() {
+        new File(Utils.pathToDir).mkdirs();
     }
 
     boolean DbExists() {
         return new File(Utils.pathToDB).exists();
+    }
+
+    boolean ConfigExists() {
+        return new File(Utils.pathToConfig).exists();
+    }
+
+    boolean JsonExists() {
+        return new File(Utils.pathToJson).exists();
+    }
+
+    boolean DirExists() {
+        return new File(Utils.pathToDir).exists();
     }
 }

@@ -3,9 +3,9 @@ version: '${project.version}'
 main: me.dlabaja.boompvp.Main
 api-version: 1.18
 authors: [ dlabaja ]
-description: Plugin s BoomPVP minihrou
+description: BoomPVP minigame
 
 commands:
   boomkit:
-    description: boomkit
+    description: sets a kit (/boomkit [player] [1-4])
     usage: /boomkit
