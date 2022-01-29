@@ -1,5 +1,6 @@
 package me.dlabaja.boompvp.utils;
 
+import me.dlabaja.boompvp.BoomPVP;
 import org.bukkit.entity.Player;
 
 import java.sql.Connection;

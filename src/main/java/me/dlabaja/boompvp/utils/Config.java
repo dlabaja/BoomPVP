@@ -19,6 +19,7 @@ public class Config {
     public static int world_border_damage;
     public static double height_damage;
     public static boolean fall_damage;
+    public static boolean day_night_cycle;
 
     public static void Setup() {
         try {
@@ -36,6 +37,7 @@ public class Config {
             height_damage = Double.parseDouble((String) propt.get("height_damage"));
             time = Utils.Parse((String) propt.get("time"));
             fall_damage = Boolean.parseBoolean((String) propt.get("fall_damage"));
+            day_night_cycle = Boolean.parseBoolean((String) propt.get("day_night_cycle"));
         } catch (IOException e) {
             e.printStackTrace();
         }

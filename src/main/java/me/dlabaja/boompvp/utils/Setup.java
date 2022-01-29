@@ -2,6 +2,7 @@ package me.dlabaja.boompvp.utils;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import me.dlabaja.boompvp.BoomPVP;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,11 +19,12 @@ import java.util.Properties;
 public class Setup {
 
     public void Setup() {
-        if (!DirExists())
+        if (!DirExists()){
             CreateDir();
+            Utils.log.info("First time using? Setting things up...");
+        }
         if (!ConfigExists()) {
             CreateConfig();
-            Utils.log.info("First time using? Setting things up...");
         }
         InitConfig();
         if (!DbExists()) {
@@ -60,7 +62,7 @@ public class Setup {
             properties.load(new FileInputStream(Utils.pathToConfig));
             var currproperties = new Properties();
             currproperties.load(Objects.requireNonNull(this.getClass().getClassLoader().getResource("config.properties")).openStream());
-            if (properties.get("version") != currproperties.get("version")) {
+            if (!properties.get("version").equals(currproperties.get("version"))) {
                 FileUtils.copyURLToFile(Objects.requireNonNull(this.getClass().getClassLoader().getResource("config.properties")), new File("plugins/boompvp/config.properties"));
             }
             Config.properties.load(new FileInputStream(Utils.pathToConfig));
@@ -85,7 +87,7 @@ public class Setup {
                 for (var single_map : JsonParser.parseString(String.valueOf(entry.getValue())).getAsJsonArray()) { //all map objects
                     var obj = single_map.getAsJsonObject();
                     var spwn = single_map.getAsJsonObject().get("spawnpoint").getAsJsonObject();
-                    BoomPVP.maps.put(new Location(Bukkit.getWorld(String.valueOf(spwn.get("world_name").getAsString())), spwn.get("x").getAsInt(), spwn.get("y").getAsInt(), spwn.get("z").getAsInt()), String.valueOf(obj.get("name")));
+                    BoomPVP.maps.put(new Location(Bukkit.getWorld(spwn.get("world_name").getAsString()), spwn.get("x").getAsInt(), spwn.get("y").getAsInt(), spwn.get("z").getAsInt()), String.valueOf(obj.get("name")));
                 }
             }
 

@@ -1,5 +1,6 @@
-package me.dlabaja.boompvp.utils;
+package me.dlabaja.boompvp;
 
+import me.dlabaja.boompvp.utils.Sql;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
@@ -31,7 +32,7 @@ public class BoomPVP {
     public HashMap<Player, Integer> killstreak = new HashMap<>();
     public static HashMap<Player, Integer> classa = new HashMap<>();
     public ArrayList<Location> listLokace = new ArrayList<>();
-    public HashMap<Object, Object> mapToName = new HashMap<>();
+    public HashMap<Location, String> mapToName = new HashMap<>();
 
     public void RemoveFiredProjectiles(Player player) {
         //smaže všechny entity co hráč vystřelil
@@ -76,17 +77,12 @@ public class BoomPVP {
             player.getInventory().setItemInOffHand(new ItemStack(Material.ENDER_PEARL, 16));
         } else
             player.getInventory().addItem(new ItemStack(Material.ENDER_PEARL, 16));
-        try {
-            if (classa.get(player).equals(1))
-                player.getInventory().addItem(new ItemStack(Material.FIREWORK_ROCKET, 1));
-            if (classa.get(player).equals(3))
-                player.getInventory().addItem(new ItemStack(Material.ARROW, 1));
-            if (classa.get(player).equals(4)) {
-                player.getInventory().addItem(GetSwapEgg(2));
-            }
-        } catch (NullPointerException nullPointerException) {
-            System.out.println(nullPointerException);
-            System.out.println(player + player.getName());
+        if (classa.get(player).equals(1))
+            player.getInventory().addItem(new ItemStack(Material.FIREWORK_ROCKET, 1));
+        if (classa.get(player).equals(3))
+            player.getInventory().addItem(new ItemStack(Material.ARROW, 1));
+        if (classa.get(player).equals(4)) {
+            player.getInventory().addItem(GetSwapEgg(2));
         }
     }
 
@@ -158,7 +154,7 @@ public class BoomPVP {
         event.getEntity().getKiller().getInventory().addItem(new ItemStack(Material.ARROW, 1));
     }
 
-    public void SwapEgg(ProjectileHitEvent event){
+    public void SwapEgg(ProjectileHitEvent event) {
         Location trefeny = Objects.requireNonNull(event.getHitEntity()).getLocation();
         Player attacker = (Player) event.getEntity().getShooter();
 
@@ -174,7 +170,7 @@ public class BoomPVP {
         attacker.spawnParticle(Particle.DRAGON_BREATH, attacker.getLocation(), 100);
     }
 
-    public void EnterInvisibleMode(Player player, PlayerInteractEvent event){
+    public void EnterInvisibleMode(Player player, PlayerInteractEvent event) {
         inv.put(player, player.getInventory().getContents());
         player.getInventory().clear();
         player.getInventory().setItem(8, GetExitInvisWatch(1));
@@ -185,9 +181,8 @@ public class BoomPVP {
         cantPVP.add(player);
 
         for (var pl : Bukkit.getOnlinePlayers()) {
-            if (pl != player) {
-                classa.get(player);
-                player.hidePlayer(player);
+            if (pl != player && classa.get(player) != 4) {
+                pl.hidePlayer(player);
             }
         }
     }
@@ -206,11 +201,14 @@ public class BoomPVP {
     }
 
     public void ClearDataFromHashMaps(Player player) {
-        killy.remove(player);
-        smrti.remove(player);
-        killstreak.remove(player);
-        inv.remove(player);
-        classa.remove(player);
+        try {
+            killy.remove(player);
+            smrti.remove(player);
+            killstreak.remove(player);
+            inv.remove(player);
+            classa.remove(player);
+        } catch (Exception ignored) {
+        }
     }
 
     public void LoadDataToHashMaps(Player player) {

@@ -1,6 +1,5 @@
 package me.dlabaja.boompvp;
 
-import me.dlabaja.boompvp.utils.BoomPVP;
 import me.dlabaja.boompvp.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

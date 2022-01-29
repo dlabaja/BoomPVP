@@ -1,6 +1,5 @@
 package me.dlabaja.boompvp;
 
-import me.dlabaja.boompvp.utils.BoomPVP;
 import me.dlabaja.boompvp.utils.Config;
 import me.dlabaja.boompvp.utils.Sql;
 import org.bukkit.*;

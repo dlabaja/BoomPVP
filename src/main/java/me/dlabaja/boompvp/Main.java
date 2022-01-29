@@ -1,6 +1,5 @@
 package me.dlabaja.boompvp;
 
-import me.dlabaja.boompvp.utils.BoomPVP;
 import me.dlabaja.boompvp.utils.Config;
 import me.dlabaja.boompvp.utils.Setup;
 import me.dlabaja.boompvp.utils.Utils;
@@ -19,17 +18,18 @@ public final class Main extends JavaPlugin {
 
     int time = 0;
     WorldBorder border;
-    BoomPVP _boomPVP = new BoomPVP();
+    BoomPVP boomPVP = new BoomPVP();
 
     @Override
     public void onEnable() {
         log = getLogger();
         log.info("BoomPVP ON");
+
         new Setup().Setup();
 
-        _boomPVP.listLokace.addAll(BoomPVP.maps.keySet());
+        boomPVP.listLokace.addAll(BoomPVP.maps.keySet());
         for (int i = 0; i < BoomPVP.maps.keySet().size(); i++) {
-            _boomPVP.mapToName.put(_boomPVP.listLokace.get(i), BoomPVP.maps.get(_boomPVP.listLokace.get(i)));
+            boomPVP.mapToName.put(boomPVP.listLokace.get(i), BoomPVP.maps.get(boomPVP.listLokace.get(i)));
         }
 
         var timer = Config.time;
@@ -40,42 +40,36 @@ public final class Main extends JavaPlugin {
         border = Objects.requireNonNull(Bukkit.getWorld("world")).getWorldBorder();
         border.setDamageAmount(Config.world_border_damage);
         border.setDamageBuffer(0);
-        GetFirstMap(_boomPVP.listLokace);
+
+        BoomPVP.currentLocation = GetNewMap(boomPVP.listLokace);
+        border.setCenter(BoomPVP.currentLocation);
+        border.setSize(Config.world_border_size);
 
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-        scheduler.scheduleSyncRepeatingTask(this, new Runnable() {
-            @Override
-            public void run() {
-                for (var player : Bukkit.getOnlinePlayers()) {
-                    player.setLevel(timer - time);
-                    if (timer - time <= 5)
-                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-                    if (time == 1)
-                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
-                }
-
-                if (time == timer - (timer / 5)) {
-                    border.setSize(Config.world_border_min_size, timer - time);
-                }
-
-                if (time == timer) {
-                    SwitchMap(_boomPVP.listLokace);
-                    time = 0;
-                }
-                time++;
+        scheduler.scheduleSyncRepeatingTask(this, () -> {
+            for (var player : Bukkit.getOnlinePlayers()) {
+                player.setLevel(timer - time);
+                if (timer - time <= 5)
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+                if (time == 1)
+                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
             }
+
+            if (time == timer - (timer / 5)) {
+                border.setSize(Config.world_border_min_size, timer - time);
+            }
+
+            if (time == timer) {
+                SwitchMap(boomPVP.listLokace);
+                time = 0;
+            }
+            time++;
         }, 0, 20);
     }
 
     @Override
     public void onDisable() {
         Utils.log.info("BoomPVP OFF");
-    }
-
-    public void GetFirstMap(List<Location> listLokace) {
-        BoomPVP.currentLocation = GetNewMap(listLokace);
-        border.setCenter(BoomPVP.currentLocation);
-        border.setSize(Config.world_border_size);
     }
 
     public Location GetNewMap(List<Location> listLokace) {
@@ -89,11 +83,11 @@ public final class Main extends JavaPlugin {
 
     public void SwitchMap(List<Location> listLokace) {
         BoomPVP.currentLocation = GetNewMap(listLokace);
-        System.out.println(BoomPVP.currentLocation);
-        Objects.requireNonNull(Bukkit.getWorld("world")).setFullTime(_boomPVP.dayTimeList[new Random().nextInt(_boomPVP.dayTimeList.length)]);
+        if (Config.day_night_cycle)
+            Objects.requireNonNull(Bukkit.getWorld("world")).setFullTime(boomPVP.dayTimeList[new Random().nextInt(boomPVP.dayTimeList.length)]);
         for (var player : Bukkit.getOnlinePlayers()) {
             player.teleport(BoomPVP.currentLocation);
-            //player.sendTitle(_boomPVPPrvky.mapToName.get(BoomPVPPrvky.currentLocation), "", 5, 40, 5);
+            player.sendTitle(boomPVP.mapToName.get(BoomPVP.currentLocation), "", 5, 40, 5);
         }
         border.setCenter(BoomPVP.currentLocation);
         border.setSize(Config.world_border_size);
