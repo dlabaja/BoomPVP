@@ -1,7 +1,10 @@
 package me.dlabaja.boompvp;
 
+import me.dlabaja.boompvp.utils.Config;
 import me.dlabaja.boompvp.utils.Sql;
+import me.dlabaja.boompvp.utils.Utils;
 import org.bukkit.*;
+import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -20,6 +23,8 @@ import java.util.*;
 
 public class BoomPVP {
 
+    public WorldBorder border;
+    public static int time;
     public static Location currentLocation;
     public static HashMap<Location, String> maps = new HashMap<>();
     public long[] dayTimeList = new long[]{6000, 18000};
@@ -136,6 +141,88 @@ public class BoomPVP {
             OnKillstreak(event);
         NewScoreboard(event.getEntity().getKiller());
     }
+
+    public Boolean CommandBoomkit(String[] args) {
+        var player = Bukkit.getPlayer(args[0]);
+        var volba = args[1];
+        assert player != null;
+        classa.put(player, Utils.Parse(volba));
+        switch (volba) {
+            case "1":
+                AddClassCommonItems(player, 1);
+                player.getInventory().setItem(1, new ItemStack(Material.FIREWORK_ROCKET, 1));
+                player.getInventory().setChestplate(MakeArmorUnbreakable(Material.ELYTRA, 1));
+                player.getInventory().setLeggings(MakeArmorUnbreakable(Material.DIAMOND_LEGGINGS, 1));
+                player.getInventory().setHelmet(MakeArmorUnbreakable(Material.CHAINMAIL_HELMET, 1));
+                break;
+            case "2":
+                AddClassCommonItems(player, 0);
+                player.getInventory().setItem(1, MakeItem(Material.IRON_AXE, 1, Enchantment.DAMAGE_ALL, 13));
+                player.getInventory().setItem(2, MakeItemUnbreakable(Material.SHIELD, 1));
+                player.getInventory().setChestplate(MakeArmor(Material.IRON_CHESTPLATE, 1, Enchantment.PROTECTION_ENVIRONMENTAL, 1));
+                player.getInventory().setLeggings(MakeArmorUnbreakable(Material.IRON_LEGGINGS, 1));
+                player.getInventory().setBoots(MakeArmorUnbreakable(Material.CHAINMAIL_BOOTS, 1));
+                break;
+            case "3":
+                AddClassCommonItems(player, 1);
+                player.getInventory().setItem(1, MakeItem(Material.BOW, 1, Enchantment.ARROW_DAMAGE, 255));
+                player.getInventory().setItem(8, new ItemStack(Material.ARROW, 1));
+                player.getInventory().setChestplate(MakeArmor(Material.CHAINMAIL_CHESTPLATE, 1, Enchantment.PROTECTION_ENVIRONMENTAL, 1));
+                player.getInventory().setLeggings(MakeArmorUnbreakable(Material.LEATHER_LEGGINGS, 1));
+                player.getInventory().setHelmet(MakeArmorUnbreakable(Material.CHAINMAIL_HELMET, 1));
+                break;
+            case "4":
+                AddClassCommonItems(player, 1);
+                player.getInventory().setItem(1, BoomPVP.GetSwapEgg(2));
+                player.getInventory().setItem(2, GetInvisWatch(1));
+                player.getInventory().setChestplate(MakeArmor(Material.IRON_CHESTPLATE, 1, Enchantment.PROTECTION_ENVIRONMENTAL, 1));
+                player.getInventory().setLeggings(MakeArmorUnbreakable(Material.IRON_LEGGINGS, 1));
+                player.getInventory().setBoots(MakeArmorUnbreakable(Material.LEATHER_BOOTS, 1));
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+
+    public Boolean CommandSkipmap(CommandSender player) {
+        if(player.isOp()){
+            SwitchMap();
+            return true;
+        }
+        return false;
+    }
+
+    public Location GetNewMap() {
+        var lokace = BoomPVP.currentLocation;
+        var rndLokace = listLokace.get(new Random().nextInt(listLokace.size()));
+        while (rndLokace == lokace) {
+            rndLokace = listLokace.get(new Random().nextInt(listLokace.size()));
+        }
+        return rndLokace;
+    }
+
+    public void SwitchMap() {
+        BoomPVP.currentLocation = GetNewMap();
+        if (Config.day_night_cycle)
+            Objects.requireNonNull(Bukkit.getWorld("world")).setFullTime(dayTimeList[new Random().nextInt(dayTimeList.length)]);
+        for (var player : Bukkit.getOnlinePlayers()) {
+            player.teleport(BoomPVP.currentLocation);
+            player.sendTitle(mapToName.get(BoomPVP.currentLocation), "", 5, 40, 5);
+        }
+        time = 0;
+        border.setCenter(BoomPVP.currentLocation);
+        border.setSize(Config.world_border_size);
+    }
+
+    public void AddClassCommonItems(Player player, int amplifier) {
+        player.getInventory().clear();
+        player.removePotionEffect(PotionEffectType.SPEED);
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 2999999, amplifier, true));
+        player.getInventory().setItemInOffHand(new ItemStack(Material.ENDER_PEARL, 16));
+        player.getInventory().setItem(0, MakeItem(Material.STICK, 1, Enchantment.KNOCKBACK, 5));
+    }
+
 
     public void OnKillstreak(PlayerDeathEvent event) {
         Bukkit.getServer().broadcastMessage(ChatColor.WHITE + "\n" + "\uD83D\uDD25 " + ChatColor.RED + "" + event.getEntity().getKiller().getName() + ChatColor.WHITE + " has killstreak " + ChatColor.RED + killstreak.get(event.getEntity().getKiller()) + ChatColor.WHITE + "!");
