@@ -30,11 +30,7 @@ public class Sql {
         return String.format("INSERT INTO players(name, kills, deaths, killstreak) VALUES('%s', 0, 0, 0)", name);
     }
 
-    public static void SaveData(Player player, BoomPVP _boomPVP){
-        Sql.Execute(String.format("UPDATE players SET kills = %o, deaths = %o, killstreak = %o WHERE name = '%s';", _boomPVP.killy.get(player), _boomPVP.smrti.get(player), _boomPVP.killstreak.get(player), player.getName()));
-    }
-
-    public static Boolean PlayerExists(String name) throws SQLException {
+    public static Boolean PlayerExists(String name) {
         try(Connection conn = Connect()) {
             assert conn != null;
             var rs = conn.createStatement().executeQuery(String.format("SELECT COUNT(*) FROM players WHERE name='%s'", name));

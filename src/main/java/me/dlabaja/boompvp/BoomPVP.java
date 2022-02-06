@@ -2,9 +2,7 @@ package me.dlabaja.boompvp;
 
 import me.dlabaja.boompvp.utils.Config;
 import me.dlabaja.boompvp.utils.Sql;
-import me.dlabaja.boompvp.utils.Utils;
 import org.bukkit.*;
-import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -30,11 +28,11 @@ public class BoomPVP {
     public long[] dayTimeList = new long[]{6000, 18000};
     public List<Player> cantPVP = new ArrayList<>();
 
-    public HashMap<Player, ItemStack[]> inv = new HashMap<>();
-    public HashMap<Player, Boolean> invStats = new HashMap<>();
-    public HashMap<Player, Integer> killy = new HashMap<>();
-    public HashMap<Player, Integer> smrti = new HashMap<>();
-    public HashMap<Player, Integer> killstreak = new HashMap<>();
+    public static HashMap<Player, ItemStack[]> inv = new HashMap<>();
+    public HashMap<Player, Boolean> isInvisible = new HashMap<>();
+    public static HashMap<Player, Integer> killy = new HashMap<>();
+    public static HashMap<Player, Integer> smrti = new HashMap<>();
+    public static HashMap<Player, Integer> killstreak = new HashMap<>();
     public static HashMap<Player, Integer> classa = new HashMap<>();
     public ArrayList<Location> listLokace = new ArrayList<>();
     public HashMap<Location, String> mapToName = new HashMap<>();
@@ -82,6 +80,7 @@ public class BoomPVP {
             player.getInventory().setItemInOffHand(new ItemStack(Material.ENDER_PEARL, 16));
         } else
             player.getInventory().addItem(new ItemStack(Material.ENDER_PEARL, 16));
+        classa.putIfAbsent(player, 1);
         if (classa.get(player).equals(1))
             player.getInventory().addItem(new ItemStack(Material.FIREWORK_ROCKET, 1));
         if (classa.get(player).equals(3))
@@ -142,18 +141,17 @@ public class BoomPVP {
         NewScoreboard(event.getEntity().getKiller());
     }
 
-    public Boolean CommandBoomkit(Player player, String[] args) {
-        var volba = args[0];
-        classa.put(player, Utils.Parse(volba));
+    public Boolean SetKit(Player player,int volba){
+        BoomPVP.classa.put(player, volba);
         switch (volba) {
-            case "1":
+            case 1:
                 AddClassCommonItems(player, 1);
                 player.getInventory().setItem(1, new ItemStack(Material.FIREWORK_ROCKET, 1));
                 player.getInventory().setChestplate(MakeArmorUnbreakable(Material.ELYTRA, 1));
                 player.getInventory().setLeggings(MakeArmorUnbreakable(Material.DIAMOND_LEGGINGS, 1));
                 player.getInventory().setHelmet(MakeArmorUnbreakable(Material.CHAINMAIL_HELMET, 1));
                 break;
-            case "2":
+            case 2:
                 AddClassCommonItems(player, 0);
                 player.getInventory().setItem(1, MakeItem(Material.IRON_AXE, 1, Enchantment.DAMAGE_ALL, 13));
                 player.getInventory().setItem(2, MakeItemUnbreakable(Material.SHIELD, 1));
@@ -161,15 +159,15 @@ public class BoomPVP {
                 player.getInventory().setLeggings(MakeArmorUnbreakable(Material.IRON_LEGGINGS, 1));
                 player.getInventory().setBoots(MakeArmorUnbreakable(Material.CHAINMAIL_BOOTS, 1));
                 break;
-            case "3":
-                AddClassCommonItems(player, 1);
+            case 3:
+               AddClassCommonItems(player, 1);
                 player.getInventory().setItem(1, MakeItem(Material.BOW, 1, Enchantment.ARROW_DAMAGE, 255));
                 player.getInventory().setItem(8, new ItemStack(Material.ARROW, 1));
                 player.getInventory().setChestplate(MakeArmor(Material.CHAINMAIL_CHESTPLATE, 1, Enchantment.PROTECTION_ENVIRONMENTAL, 1));
                 player.getInventory().setLeggings(MakeArmorUnbreakable(Material.LEATHER_LEGGINGS, 1));
                 player.getInventory().setHelmet(MakeArmorUnbreakable(Material.CHAINMAIL_HELMET, 1));
                 break;
-            case "4":
+            case 4:
                 AddClassCommonItems(player, 1);
                 player.getInventory().setItem(1, BoomPVP.GetSwapEgg(2));
                 player.getInventory().setItem(2, GetInvisWatch(1));
@@ -181,14 +179,6 @@ public class BoomPVP {
                 return false;
         }
         return true;
-    }
-
-    public Boolean CommandSkipmap(CommandSender player) {
-        if(player.isOp()){
-            SwitchMap();
-            return true;
-        }
-        return false;
     }
 
     public Location GetNewMap() {
@@ -208,9 +198,11 @@ public class BoomPVP {
             player.teleport(BoomPVP.currentLocation);
             player.sendTitle(mapToName.get(BoomPVP.currentLocation), "", 5, 40, 5);
         }
+
         time = 0;
         border.setCenter(BoomPVP.currentLocation);
         border.setSize(Config.world_border_size);
+
     }
 
     public void AddClassCommonItems(Player player, int amplifier) {
@@ -223,7 +215,7 @@ public class BoomPVP {
 
 
     public void OnKillstreak(PlayerDeathEvent event) {
-        Bukkit.getServer().broadcastMessage(ChatColor.WHITE + "\n" + "\uD83D\uDD25 " + ChatColor.RED + "" + event.getEntity().getKiller().getName() + ChatColor.WHITE + " has killstreak " + ChatColor.RED + killstreak.get(event.getEntity().getKiller()) + ChatColor.WHITE + "!");
+        Bukkit.getServer().broadcastMessage(ChatColor.WHITE + "\n" + "\uD83D\uDD25 " + ChatColor.RED + "" + Objects.requireNonNull(event.getEntity().getKiller()).getName() + ChatColor.WHITE + " has killstreak " + ChatColor.RED + killstreak.get(event.getEntity().getKiller()) + ChatColor.WHITE + "!");
     }
 
     public void OnKnockOff(PlayerDeathEvent event) {
@@ -231,11 +223,11 @@ public class BoomPVP {
     }
 
     public void OnSwordKill(PlayerDeathEvent event) {
-        event.setDeathMessage("☠ " + ChatColor.GOLD + "" + Objects.requireNonNull(event.getEntity().getKiller()).getName() + ChatColor.WHITE + " \uD83E\uDE93 " + ChatColor.GOLD + "" + event.getEntity().getPlayer().getName());
+        event.setDeathMessage("☠ " + ChatColor.GOLD + "" + Objects.requireNonNull(event.getEntity().getKiller()).getName() + ChatColor.WHITE + " \uD83E\uDE93 " + ChatColor.GOLD + "" + Objects.requireNonNull(event.getEntity().getPlayer()).getName());
     }
 
     public void OnProjectileKill(PlayerDeathEvent event) {
-        event.setDeathMessage("☠ " + ChatColor.GOLD + "" + Objects.requireNonNull(event.getEntity().getKiller()).getName() + ChatColor.WHITE + " \uD83C\uDFF9 " + ChatColor.GOLD + "" + event.getEntity().getPlayer().getName());
+        event.setDeathMessage("☠ " + ChatColor.GOLD + "" + Objects.requireNonNull(event.getEntity().getKiller()).getName() + ChatColor.WHITE + " \uD83C\uDFF9 " + ChatColor.GOLD + "" + Objects.requireNonNull(event.getEntity().getPlayer()).getName());
         event.getEntity().getKiller().getInventory().addItem(new ItemStack(Material.ARROW, 1));
     }
 
@@ -262,11 +254,11 @@ public class BoomPVP {
         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 3, true));
         player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, 0, true));
         event.setCancelled(true);
-        invStats.put(player, true);
+        isInvisible.put(player, true);
         cantPVP.add(player);
 
         for (var pl : Bukkit.getOnlinePlayers()) {
-            if (pl != player && classa.get(player) != 4) {
+            if (pl != player && classa.get(pl) != 4) {
                 pl.hidePlayer(player);
             }
         }
@@ -281,7 +273,7 @@ public class BoomPVP {
         player.removePotionEffect(PotionEffectType.SPEED);
         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, true));
         player.getInventory().setContents(inv.get(player));
-        invStats.put(player, false);
+        isInvisible.put(player, false);
         cantPVP.remove(player);
     }
 
@@ -301,8 +293,12 @@ public class BoomPVP {
         killy.put(player, (Integer) data[1]);
         smrti.put(player, (Integer) data[2]);
         killstreak.put(player, (Integer) data[3]);
-        invStats.put(player, false);
+        isInvisible.put(player, false);
         BoomPVP.classa.put(player, 1);
+    }
+
+    public void SaveData(Player player){
+        Sql.Execute("UPDATE players SET kills = " + killy.get(player) + ", deaths = " + smrti.get(player) + ", killstreak = " + killstreak.get(player) + " WHERE name = '" + player.getName() + "';");
     }
 
     //vrátí nezničitelný a enchantovaný item

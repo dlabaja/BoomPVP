@@ -13,7 +13,6 @@ import org.bukkit.event.player.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.sql.SQLException;
 import java.util.Objects;
 
 public class Listeners implements Listener {
@@ -21,8 +20,8 @@ public class Listeners implements Listener {
     public BoomPVP boomPVP = new BoomPVP();
 
     public void OnPlayerDeath(Player player) {
-       boomPVP.RemoveFiredProjectiles(player);
-        if (boomPVP.invStats.get(player)) {
+        boomPVP.RemoveFiredProjectiles(player);
+        if (boomPVP.isInvisible.get(player)) {
             boomPVP.ExitInvisibleMode(player);
         }
         boomPVP.ClearInventory(player);
@@ -30,11 +29,11 @@ public class Listeners implements Listener {
         player.teleport(BoomPVP.currentLocation);
         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1f, 1f);
 
-        boomPVP.smrti.replace(player, boomPVP.smrti.get(player) + 1);
+        BoomPVP.smrti.replace(player, BoomPVP.smrti.get(player) + 1);
     }
 
     @EventHandler
-    public void OnPlayerThrowItem(PlayerDropItemEvent event){
+    public void OnPlayerThrowItem(PlayerDropItemEvent event) {
         if (!event.getPlayer().isOp() && !Config.throw_items)
             event.setCancelled(true);
     }
@@ -42,12 +41,14 @@ public class Listeners implements Listener {
     @EventHandler
     public void OnPlayerQuit(PlayerQuitEvent event) {
         event.setQuitMessage(ChatColor.WHITE + "" + ChatColor.BOLD + "[" + ChatColor.RED + "" + ChatColor.BOLD + "-" + ChatColor.WHITE + "" + ChatColor.BOLD + "] " + event.getPlayer().getName());
-        Sql.SaveData(event.getPlayer(), boomPVP);
+        boomPVP.SaveData(event.getPlayer());
         boomPVP.ClearDataFromHashMaps(event.getPlayer());
     }
 
     @EventHandler
-    public void OnPlayerJoin(PlayerJoinEvent event) throws SQLException {
+    public void OnPlayerJoin(PlayerJoinEvent event) {
+        event.getPlayer().getInventory().clear();
+        boomPVP.SetKit(event.getPlayer(), 1);
         event.getPlayer().setGameMode(GameMode.ADVENTURE);
         event.setJoinMessage(ChatColor.WHITE + "" + ChatColor.BOLD + "[" + ChatColor.GREEN + "" + ChatColor.BOLD + "+" + ChatColor.WHITE + "" + ChatColor.BOLD + "] " + event.getPlayer().getName());
         if (!Sql.PlayerExists(event.getPlayer().getName()))
@@ -56,9 +57,8 @@ public class Listeners implements Listener {
         event.getPlayer().teleport(BoomPVP.currentLocation);
         boomPVP.NewScoreboard(event.getPlayer());
 
-        event.getPlayer().getInventory().clear();
+
         event.getPlayer().setHealth(20);
-        Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "boomkit " + event.getPlayer().getName() + " 1");
         event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, true));
         event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 0, true));
     }
@@ -90,7 +90,7 @@ public class Listeners implements Listener {
             boomPVP.OnNotSuicide(event);
         }
 
-        boomPVP.killstreak.replace(event.getEntity().getPlayer(), 0);
+        BoomPVP.killstreak.replace(event.getEntity().getPlayer(), 0);
         OnPlayerDeath(event.getEntity().getPlayer());
         boomPVP.NewScoreboard(event.getPlayer());
 
@@ -98,8 +98,11 @@ public class Listeners implements Listener {
 
     @EventHandler
     public void OnInventoryClick(InventoryClickEvent event) {
-        if (Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.ENDER_PEARL) || event.getCurrentItem().getType().equals(Material.ARROW) || Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.FIREWORK_ROCKET) || Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.EGG)) {
-            event.setCancelled(true);
+        try {
+            if (Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.ENDER_PEARL) || Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.ARROW) || Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.FIREWORK_ROCKET) || Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.EGG)) {
+                event.setCancelled(true);
+            }
+        } catch (Exception ignored) {
         }
     }
 
@@ -122,14 +125,13 @@ public class Listeners implements Listener {
 
     @EventHandler
     public void OnDamage(EntityDamageEvent event) {
-        if ((event.getCause() == EntityDamageEvent.DamageCause.FALL && !Config.fall_damage) || event.getCause() == EntityDamageEvent.DamageCause.FLY_INTO_WALL)
+        if ((event.getCause() == EntityDamageEvent.DamageCause.FALL && !Config.fall_damage) || event.getCause() == EntityDamageEvent.DamageCause.FLY_INTO_WALL || event.getEntity().getLocation().getY() >= Config.spawn_height)
             event.setCancelled(true);
-        if (event.getCause() == EntityDamageEvent.DamageCause.FIRE_TICK || event.getCause() == EntityDamageEvent.DamageCause.FIRE || event.getCause() == EntityDamageEvent.DamageCause.LAVA)
-            if (event.getEntity().getType() == EntityType.PLAYER) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.FIRE || event.getCause() == EntityDamageEvent.DamageCause.LAVA)
+            if (event.getEntity().getType() == EntityType.PLAYER)
                 ((Player) event.getEntity()).setHealth(0);
-            }
-        if (event.getEntity().getLocation().getY() >= Config.spawn_height)
-            event.setCancelled(true);
+        if (event.getCause() == EntityDamageEvent.DamageCause.FIRE_TICK)
+            event.getEntity().setFireTicks(0);
     }
 
     @EventHandler

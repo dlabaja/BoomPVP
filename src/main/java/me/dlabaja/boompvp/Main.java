@@ -2,14 +2,14 @@ package me.dlabaja.boompvp;
 
 import me.dlabaja.boompvp.utils.Config;
 import me.dlabaja.boompvp.utils.Setup;
-import me.dlabaja.boompvp.utils.Sql;
 import me.dlabaja.boompvp.utils.Utils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import java.util.*;
+import java.util.Objects;
 
 import static me.dlabaja.boompvp.BoomPVP.time;
 import static me.dlabaja.boompvp.utils.Utils.log;
@@ -26,12 +26,14 @@ public final class Main extends JavaPlugin {
 
         boompvp.listLokace.addAll(BoomPVP.maps.keySet());
         for (int i = 0; i < BoomPVP.maps.keySet().size(); i++) {
-            boompvp.mapToName.put(boompvp.listLokace.get(i), BoomPVP.maps.get(boompvp.listLokace.get(i)));
+            var name = BoomPVP.maps.get(boompvp.listLokace.get(i));
+            boompvp.mapToName.put(boompvp.listLokace.get(i), name.substring(1, name.length() - 1));
         }
 
         var timer = Config.time;
         Commands cmd = new Commands();
         Objects.requireNonNull(this.getCommand("boomkit")).setExecutor(cmd);
+        Objects.requireNonNull(this.getCommand("skipmap")).setExecutor(cmd);
         getServer().getPluginManager().registerEvents(new Listeners(), this);
 
         boompvp.border = Objects.requireNonNull(Bukkit.getWorld("world")).getWorldBorder();
@@ -66,7 +68,11 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         Utils.log.info("BoomPVP OFF");
-
+        for (var player : Bukkit.getOnlinePlayers()) {
+            boompvp.SaveData(player);
+            boompvp.ClearDataFromHashMaps(player);
+            player.kick(Component.text("BoomPVP reloading..."));
+        }
     }
 }
 
