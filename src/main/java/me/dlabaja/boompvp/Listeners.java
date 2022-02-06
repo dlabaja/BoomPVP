@@ -9,10 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -23,7 +20,6 @@ public class Listeners implements Listener {
 
     public BoomPVP boomPVP = new BoomPVP();
 
-    //Volám když hráč umře
     public void OnPlayerDeath(Player player) {
        boomPVP.RemoveFiredProjectiles(player);
         if (boomPVP.invStats.get(player)) {
@@ -34,8 +30,13 @@ public class Listeners implements Listener {
         player.teleport(BoomPVP.currentLocation);
         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1f, 1f);
 
-        //replacne hashmapu
         boomPVP.smrti.replace(player, boomPVP.smrti.get(player) + 1);
+    }
+
+    @EventHandler
+    public void OnPlayerThrowItem(PlayerDropItemEvent event){
+        if (!event.getPlayer().isOp() && !Config.throw_items)
+            event.setCancelled(true);
     }
 
     @EventHandler
@@ -62,10 +63,8 @@ public class Listeners implements Listener {
         event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 0, true));
     }
 
-    //hráč spadne do voidu
     @EventHandler
     public void OnPlayerMoveVoid(PlayerMoveEvent event) {
-        //pokud spadne pod y = -10, zabije se
         if (event.getPlayer().getLocation().getY() <= Config.min_height)
             event.getPlayer().setHealth(0);
         if (event.getPlayer().getLocation().getY() >= Config.max_height) {
@@ -74,20 +73,14 @@ public class Listeners implements Listener {
             event.getPlayer().setHealth(event.getPlayer().getHealth() - Config.height_damage);
             event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_PLAYER_HURT, 1f, 1f);
         }
-
-        if (Objects.requireNonNull(event.getTo()).getBlock().getType().equals(Material.LAVA) && !event.getPlayer().getGameMode().equals(GameMode.CREATIVE))
-            event.getPlayer().setHealth(0);
-
     }
 
-    //pokud vystřelí na spawnu, šíp se vrátí
     @EventHandler
     public void OnPlayerLaunchProjectile(ProjectileLaunchEvent event) {
         if (event.getEntity().getLocation().getY() >= Config.spawn_height)
             event.setCancelled(true);
     }
 
-    //Aktivuje se při smrti hráče a dá útočníkovi věci + vygeneruje podle posledního damage death message
     @EventHandler
     public void OnPlayerKill(PlayerDeathEvent event) {
         event.setDeathMessage("");
@@ -103,7 +96,6 @@ public class Listeners implements Listener {
 
     }
 
-    //pokud v inventáři klikne na perlu, perla se vrátí zpět. Takhle při smrti nemůže hráč duplikovat itemy
     @EventHandler
     public void OnInventoryClick(InventoryClickEvent event) {
         if (Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.ENDER_PEARL) || event.getCurrentItem().getType().equals(Material.ARROW) || Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.FIREWORK_ROCKET) || Objects.requireNonNull(event.getCurrentItem()).getType().equals(Material.EGG)) {
@@ -111,7 +103,6 @@ public class Listeners implements Listener {
         }
     }
 
-    //Logika SwapEggu
     @EventHandler
     public void OnEggUse(ProjectileHitEvent event) {
         if (event.getEntityType().equals(EntityType.EGG) && event.getHitEntity() != null) {

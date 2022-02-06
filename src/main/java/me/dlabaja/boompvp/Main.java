@@ -2,6 +2,7 @@ package me.dlabaja.boompvp;
 
 import me.dlabaja.boompvp.utils.Config;
 import me.dlabaja.boompvp.utils.Setup;
+import me.dlabaja.boompvp.utils.Sql;
 import me.dlabaja.boompvp.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -65,6 +66,7 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         Utils.log.info("BoomPVP OFF");
+
     }
 }
 

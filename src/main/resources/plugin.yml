@@ -8,7 +8,7 @@ description: BoomPVP minigame
 commands:
   boomkit:
     description: sets a boompvp kit
-    usage: /boomkit [player] [1-4]
+    usage: /boomkit [1-4]
 
   skipmap:
     description: skips a map

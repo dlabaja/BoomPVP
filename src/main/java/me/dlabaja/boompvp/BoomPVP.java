@@ -142,10 +142,8 @@ public class BoomPVP {
         NewScoreboard(event.getEntity().getKiller());
     }
 
-    public Boolean CommandBoomkit(String[] args) {
-        var player = Bukkit.getPlayer(args[0]);
-        var volba = args[1];
-        assert player != null;
+    public Boolean CommandBoomkit(Player player, String[] args) {
+        var volba = args[0];
         classa.put(player, Utils.Parse(volba));
         switch (volba) {
             case "1":

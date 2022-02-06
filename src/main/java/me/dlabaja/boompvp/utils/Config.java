@@ -20,6 +20,7 @@ public class Config {
     public static double height_damage;
     public static boolean fall_damage;
     public static boolean day_night_cycle;
+    public static boolean throw_items;
 
     public static void Setup() {
         try {
@@ -38,6 +39,7 @@ public class Config {
             time = Utils.Parse((String) propt.get("time"));
             fall_damage = Boolean.parseBoolean((String) propt.get("fall_damage"));
             day_night_cycle = Boolean.parseBoolean((String) propt.get("day_night_cycle"));
+            throw_items = Boolean.parseBoolean((String) propt.get("throw_items"));
         } catch (IOException e) {
             e.printStackTrace();
         }

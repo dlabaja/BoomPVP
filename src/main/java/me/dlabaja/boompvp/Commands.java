@@ -20,8 +20,8 @@ public class Commands implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         try {
-            if (command.getName().equalsIgnoreCase("boomkit"))  //boomkit [player] [1-4]
-                return boomPVP.CommandBoomkit(args);
+            if (command.getName().equalsIgnoreCase("boomkit"))  //boomkit [1-4]
+                return boomPVP.CommandBoomkit((Player) sender, args);
             if (command.getName().equalsIgnoreCase("skipmap")) {  //skipmap
                 return boomPVP.CommandSkipmap(sender);
             }
