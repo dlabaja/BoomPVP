@@ -21,6 +21,13 @@ public class Config {
     public static boolean fall_damage;
     public static boolean day_night_cycle;
     public static boolean throw_items;
+    public static String death_suicide_message;
+    public static String death_knocked_message;
+    public static String death_projectile_message;
+    public static String death_default_message;
+    public static String killstreak_message;
+    public static String join_message;
+    public static String quit_message;
 
     public static void Setup() {
         try {
@@ -40,6 +47,13 @@ public class Config {
             fall_damage = Boolean.parseBoolean((String) propt.get("fall_damage"));
             day_night_cycle = Boolean.parseBoolean((String) propt.get("day_night_cycle"));
             throw_items = Boolean.parseBoolean((String) propt.get("throw_items"));
+            death_suicide_message = (String) propt.get("death_suicide_message");
+            death_knocked_message = (String) propt.get("death_knocked_message");
+            death_projectile_message = (String) propt.get("death_projectile_message");
+            death_default_message = (String) propt.get("death_default_message");
+            killstreak_message = (String) propt.get("killstreak_message");
+            join_message = (String) propt.get("join_message");
+            quit_message = (String) propt.get("quit_message");
         } catch (IOException e) {
             e.printStackTrace();
         }

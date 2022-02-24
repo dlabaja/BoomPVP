@@ -2,6 +2,7 @@ package me.dlabaja.boompvp;
 
 import me.dlabaja.boompvp.utils.Config;
 import me.dlabaja.boompvp.utils.Sql;
+import me.dlabaja.boompvp.utils.Utils;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -40,7 +41,7 @@ public class Listeners implements Listener {
 
     @EventHandler
     public void OnPlayerQuit(PlayerQuitEvent event) {
-        event.setQuitMessage(ChatColor.WHITE + "" + ChatColor.BOLD + "[" + ChatColor.RED + "" + ChatColor.BOLD + "-" + ChatColor.WHITE + "" + ChatColor.BOLD + "] " + event.getPlayer().getName());
+        event.setQuitMessage(Utils.FormatMsg.formatMsg(Config.quit_message, event.getPlayer()));
         boomPVP.SaveData(event.getPlayer());
         boomPVP.ClearDataFromHashMaps(event.getPlayer());
     }
@@ -50,7 +51,8 @@ public class Listeners implements Listener {
         event.getPlayer().getInventory().clear();
         boomPVP.SetKit(event.getPlayer(), 1);
         event.getPlayer().setGameMode(GameMode.ADVENTURE);
-        event.setJoinMessage(ChatColor.WHITE + "" + ChatColor.BOLD + "[" + ChatColor.GREEN + "" + ChatColor.BOLD + "+" + ChatColor.WHITE + "" + ChatColor.BOLD + "] " + event.getPlayer().getName());
+        System.out.println(Config.join_message);
+        event.setJoinMessage(Utils.FormatMsg.formatMsg(Config.join_message, event.getPlayer()));
         if (!Sql.PlayerExists(event.getPlayer().getName()))
             Sql.Execute(Sql.AddPlayer(event.getPlayer().getName()));
         boomPVP.LoadDataToHashMaps(event.getPlayer());

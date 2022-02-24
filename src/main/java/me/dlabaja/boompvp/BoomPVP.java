@@ -2,6 +2,7 @@ package me.dlabaja.boompvp;
 
 import me.dlabaja.boompvp.utils.Config;
 import me.dlabaja.boompvp.utils.Sql;
+import me.dlabaja.boompvp.utils.Utils;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
@@ -121,27 +122,7 @@ public class BoomPVP {
         event.setScoreboard(board);
     }
 
-    public void OnSuicide(PlayerDeathEvent event) {
-        event.setDeathMessage("☠ " + ChatColor.GOLD + "" + Objects.requireNonNull(event.getEntity().getPlayer()).getName() + ChatColor.WHITE + " died");
-    }
-
-    public void OnNotSuicide(PlayerDeathEvent event) {
-        if (Objects.requireNonNull(event.getEntity().getLastDamageCause()).getDamage() <= 1)
-            OnKnockOff(event);
-        else
-            OnSwordKill(event);
-        if (Objects.requireNonNull(event.getEntity().getLastDamageCause()).getCause().equals(EntityDamageEvent.DamageCause.PROJECTILE)) {
-            OnProjectileKill(event);
-        }
-        Objects.requireNonNull(event.getEntity().getKiller()).playSound(event.getEntity().getKiller().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 0.5f);
-        killy.replace(event.getEntity().getKiller(), killy.get(event.getEntity().getKiller()) + 1);
-        killstreak.replace(event.getEntity().getKiller(), killstreak.get(event.getEntity().getKiller()) + 1);
-        if (killstreak.get(event.getEntity().getKiller()) % 5 == 0)
-            OnKillstreak(event);
-        NewScoreboard(event.getEntity().getKiller());
-    }
-
-    public Boolean SetKit(Player player,int volba){
+    public Boolean SetKit(Player player, int volba) {
         BoomPVP.classa.put(player, volba);
         switch (volba) {
             case 1:
@@ -160,7 +141,7 @@ public class BoomPVP {
                 player.getInventory().setBoots(MakeArmorUnbreakable(Material.CHAINMAIL_BOOTS, 1));
                 break;
             case 3:
-               AddClassCommonItems(player, 1);
+                AddClassCommonItems(player, 1);
                 player.getInventory().setItem(1, MakeItem(Material.BOW, 1, Enchantment.ARROW_DAMAGE, 255));
                 player.getInventory().setItem(8, new ItemStack(Material.ARROW, 1));
                 player.getInventory().setChestplate(MakeArmor(Material.CHAINMAIL_CHESTPLATE, 1, Enchantment.PROTECTION_ENVIRONMENTAL, 1));
@@ -213,22 +194,41 @@ public class BoomPVP {
         player.getInventory().setItem(0, MakeItem(Material.STICK, 1, Enchantment.KNOCKBACK, 5));
     }
 
+    public void OnSuicide(PlayerDeathEvent event) {
+        event.setDeathMessage(Utils.FormatMsg.formatMsg(Config.death_suicide_message, event.getPlayer()));
+    }
+
+    public void OnNotSuicide(PlayerDeathEvent event) {
+        if (Objects.requireNonNull(event.getEntity().getLastDamageCause()).getDamage() <= 1)
+            OnKnockOff(event);
+        else
+            OnSwordKill(event);
+        if (Objects.requireNonNull(event.getEntity().getLastDamageCause()).getCause().equals(EntityDamageEvent.DamageCause.PROJECTILE)) {
+            OnProjectileKill(event);
+        }
+        Objects.requireNonNull(event.getEntity().getKiller()).playSound(event.getEntity().getKiller().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 0.5f);
+        killy.replace(event.getEntity().getKiller(), killy.get(event.getEntity().getKiller()) + 1);
+        killstreak.replace(event.getEntity().getKiller(), killstreak.get(event.getEntity().getKiller()) + 1);
+        if (killstreak.get(event.getEntity().getKiller()) % 5 == 0)
+            OnKillstreak(event);
+        NewScoreboard(event.getEntity().getKiller());
+    }
 
     public void OnKillstreak(PlayerDeathEvent event) {
-        Bukkit.getServer().broadcastMessage(ChatColor.WHITE + "\n" + "\uD83D\uDD25 " + ChatColor.RED + "" + Objects.requireNonNull(event.getEntity().getKiller()).getName() + ChatColor.WHITE + " has killstreak " + ChatColor.RED + killstreak.get(event.getEntity().getKiller()) + ChatColor.WHITE + "!");
+        event.setDeathMessage(Utils.FormatMsg.formatMsg(Config.killstreak_message, Objects.requireNonNull(event.getEntity().getKiller()), killstreak.get(event.getEntity().getKiller())));
     }
 
     public void OnKnockOff(PlayerDeathEvent event) {
-        event.setDeathMessage("☠ " + ChatColor.GOLD + "" + Objects.requireNonNull(event.getEntity().getKiller()).getName() + ChatColor.WHITE + " \uD83D\uDDE1 " + ChatColor.GOLD + "" + Objects.requireNonNull(event.getEntity().getPlayer()).getName());
+        event.setDeathMessage(Utils.FormatMsg.formatMsg(Config.death_knocked_message, event.getPlayer(), Objects.requireNonNull(event.getEntity().getKiller())));
     }
 
     public void OnSwordKill(PlayerDeathEvent event) {
-        event.setDeathMessage("☠ " + ChatColor.GOLD + "" + Objects.requireNonNull(event.getEntity().getKiller()).getName() + ChatColor.WHITE + " \uD83E\uDE93 " + ChatColor.GOLD + "" + Objects.requireNonNull(event.getEntity().getPlayer()).getName());
+        event.setDeathMessage(Utils.FormatMsg.formatMsg(Config.death_default_message, event.getPlayer(), Objects.requireNonNull(event.getEntity().getKiller())));
     }
 
     public void OnProjectileKill(PlayerDeathEvent event) {
-        event.setDeathMessage("☠ " + ChatColor.GOLD + "" + Objects.requireNonNull(event.getEntity().getKiller()).getName() + ChatColor.WHITE + " \uD83C\uDFF9 " + ChatColor.GOLD + "" + Objects.requireNonNull(event.getEntity().getPlayer()).getName());
-        event.getEntity().getKiller().getInventory().addItem(new ItemStack(Material.ARROW, 1));
+        event.setDeathMessage(Utils.FormatMsg.formatMsg(Config.death_projectile_message, event.getPlayer(), Objects.requireNonNull(event.getEntity().getKiller())));
+        Objects.requireNonNull(event.getEntity().getKiller()).getInventory().addItem(new ItemStack(Material.ARROW, 1));
     }
 
     public void SwapEgg(ProjectileHitEvent event) {
@@ -297,7 +297,7 @@ public class BoomPVP {
         BoomPVP.classa.put(player, 1);
     }
 
-    public void SaveData(Player player){
+    public void SaveData(Player player) {
         Sql.Execute("UPDATE players SET kills = " + killy.get(player) + ", deaths = " + smrti.get(player) + ", killstreak = " + killstreak.get(player) + " WHERE name = '" + player.getName() + "';");
     }
 
