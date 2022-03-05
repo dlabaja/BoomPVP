@@ -12,6 +12,7 @@ public class Config {
     public static int version;
     public static int world_border_size;
     public static int world_border_min_size;
+    public static int border_shrinking_time;
     public static int time;
     public static int max_height;
     public static int spawn_height;
@@ -28,7 +29,7 @@ public class Config {
     public static String killstreak_message;
     public static String join_message;
     public static String quit_message;
-
+    
     public static void Setup() {
         try {
             properties = new Properties();
@@ -39,6 +40,7 @@ public class Config {
             world_border_size = Utils.Parse((String) propt.get("world_border_size"));
             world_border_min_size = Utils.Parse((String) propt.get("world_border_min_size"));
             world_border_damage = Utils.Parse((String) propt.get("world_border_damage"));
+            border_shrinking_time = Utils.Parse((String) propt.get("border_shrinking_time"));
             min_height = Utils.Parse((String) propt.get("min_height"));
             spawn_height = Utils.Parse((String) propt.get("spawn_height"));
             max_height = Utils.Parse((String) propt.get("max_height"));

@@ -225,7 +225,6 @@ public class BoomPVP {
     public void OnSwordKill(PlayerDeathEvent event) {
         event.setDeathMessage(Utils.FormatMsg.formatMsg(Config.death_default_message, event.getPlayer(), Objects.requireNonNull(event.getEntity().getKiller())));
     }
-
     public void OnProjectileKill(PlayerDeathEvent event) {
         event.setDeathMessage(Utils.FormatMsg.formatMsg(Config.death_projectile_message, event.getPlayer(), Objects.requireNonNull(event.getEntity().getKiller())));
         Objects.requireNonNull(event.getEntity().getKiller()).getInventory().addItem(new ItemStack(Material.ARROW, 1));

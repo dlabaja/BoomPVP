@@ -24,10 +24,11 @@ public final class Main extends JavaPlugin {
 
         new Setup().Setup();
 
+        //adds mapps to plugin
         boompvp.listLokace.addAll(BoomPVP.maps.keySet());
         for (int i = 0; i < BoomPVP.maps.keySet().size(); i++) {
             var name = BoomPVP.maps.get(boompvp.listLokace.get(i));
-            boompvp.mapToName.put(boompvp.listLokace.get(i), name.substring(1, name.length() - 1));
+            boompvp.mapToName.put(boompvp.listLokace.get(i), name.substring(1, name.length() - 1)); //removes the " and puts it into
         }
 
         var timer = Config.time;
@@ -36,17 +37,19 @@ public final class Main extends JavaPlugin {
         Objects.requireNonNull(this.getCommand("skipmap")).setExecutor(cmd);
         getServer().getPluginManager().registerEvents(new Listeners(), this);
 
-        boompvp.border = Objects.requireNonNull(Bukkit.getWorld("world")).getWorldBorder();
+        BoomPVP.currentLocation = boompvp.GetNewMap();
+
+        boompvp.border = BoomPVP.currentLocation.getWorld().getWorldBorder();
         boompvp.border.setDamageAmount(Config.world_border_damage);
         boompvp.border.setDamageBuffer(0);
-
-        BoomPVP.currentLocation = boompvp.GetNewMap();
         boompvp.border.setCenter(BoomPVP.currentLocation);
         boompvp.border.setSize(Config.world_border_size);
 
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         scheduler.scheduleSyncRepeatingTask(this, () -> {
             for (var player : Bukkit.getOnlinePlayers()) {
+                //timer - from 300 to 0
+                //time - inversed timer, 0 - 300
                 player.setLevel(timer - time);
                 if (timer - time <= 5)
                     player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
@@ -54,7 +57,7 @@ public final class Main extends JavaPlugin {
                     player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
             }
 
-            if (time == timer - (timer / 5)) {
+            if (timer - time == Config.border_shrinking_time) {
                 boompvp.border.setSize(Config.world_border_min_size, timer - time);
             }
 
